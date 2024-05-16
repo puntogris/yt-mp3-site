@@ -2,6 +2,8 @@
 	let url = '';
 	let downloading = false;
 
+	$: downloadText = downloading ? 'Descargando mp3' : 'Descargar mp3';
+
 	async function startDownload() {
 		downloading = true;
 
@@ -61,15 +63,15 @@
 	}
 </script>
 
-<div class="flex h-screen flex-col items-center justify-center gap-5">
+<div class="flex h-screen flex-col items-center justify-center gap-5 px-4">
 	<input
-		class="mt-14 w-full text-center text-3xl focus:outline-none"
+		class="mt-14 w-full text-center text-lg focus:outline-none sm:text-3xl"
 		placeholder="link a descargar"
 		bind:value={url}
 	/>
 	<button
-		class="w-full max-w-2xl rounded-md bg-green-400 p-2 font-medium"
+		class="w-full max-w-2xl rounded-md bg-green-400 p-2 font-medium text-gray-800 hover:bg-green-300"
 		disabled={downloading}
-		on:click={startDownload}>Descargar</button
+		on:click={startDownload}>{downloadText}</button
 	>
 </div>
