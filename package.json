@@ -28,6 +28,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@vercel/kv": "^1.0.1",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "ytdl-core": "^4.11.5"
   }
