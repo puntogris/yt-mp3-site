@@ -7,7 +7,7 @@ export async function POST({ request }) {
 		const { url } = await request.json();
 
 		if (!url) {
-			error(500, 'Error leyendo la url');
+			error(500);
 		}
 
 		const info = await ytdl.getBasicInfo(url);
