@@ -98,7 +98,7 @@
 	</div>
 {/if}
 
-<div class="flex min-h-screen flex-col">
+<div class="flex min-h-dvh flex-col">
 	<div class="flex grow flex-col items-center justify-center gap-5 px-4">
 		<input
 			class="mt-14 w-full text-center text-lg focus:outline-none sm:text-3xl"
