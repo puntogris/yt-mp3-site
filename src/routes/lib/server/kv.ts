@@ -5,3 +5,5 @@ export const kv = createClient({
 	url: PRIVATE_KV_REST_API_URL,
 	token: PRIVATE_KV_REST_API_TOKEN
 });
+
+export const KV_DOWNLOADS_KEY = 'downloads';

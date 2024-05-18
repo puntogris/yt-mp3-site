@@ -1,10 +1,10 @@
 import { error, json } from '@sveltejs/kit';
-import { kv } from '../../lib/server/kv';
+import { KV_DOWNLOADS_KEY, kv } from '../../lib/server/kv';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST() {
 	try {
-		await kv.incr('downloads');
+		await kv.incr(KV_DOWNLOADS_KEY);
 
 		return json('All good');
 	} catch (err) {

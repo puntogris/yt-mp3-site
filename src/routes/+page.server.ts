@@ -1,16 +1,12 @@
-import { kv } from './lib/server/kv';
+import { KV_DOWNLOADS_KEY, kv } from './lib/server/kv';
 
 export async function load() {
 	try {
-		const downloads = await kv.get('downloads');
+		const downloads = await kv.get(KV_DOWNLOADS_KEY);
 
-		return {
-			downloads: getNumberOrZero(downloads)
-		};
+		return { downloads: getNumberOrZero(downloads) };
 	} catch (error) {
-		return {
-			downloads: 0
-		};
+		return { downloads: 0 };
 	}
 }
 
