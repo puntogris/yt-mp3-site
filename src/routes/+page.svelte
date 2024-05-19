@@ -90,10 +90,10 @@
 {#if error}
 	<div
 		transition:fade
-		class="absolute right-0 top-0 m-4 flex max-w-lg items-center gap-2 overflow-hidden rounded border border-red-500 bg-red-50 pe-2"
+		class="absolute right-0 top-0 m-4 flex min-h-12 max-w-lg items-center overflow-hidden rounded-md border border-red-500 bg-red-50 pe-2"
 	>
-		<div class="h-8 w-2 bg-red-500" />
-		<p>{error}</p>
+		<div class="absolute h-full w-1.5 bg-red-500" />
+		<div class="ml-4">{error}</div>
 	</div>
 {/if}
 
