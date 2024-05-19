@@ -9,6 +9,7 @@
 	let url = '';
 	let error = '';
 	let downloading = false;
+	let errorTimeout: NodeJS.Timeout;
 
 	async function startDownload() {
 		if (!url) return;
@@ -30,15 +31,14 @@
 			method: 'post',
 			body: JSON.stringify({ url })
 		});
-
 		if (!audioResponse.body || !audioResponse.ok) {
 			handleError();
 			return;
 		}
 		const blobUrl = await getBloblUrlFromBody(audioResponse.body);
-		downloadToBrowser(blobUrl, title);
 
-		resetState();
+		downloadToBrowser(blobUrl, title);
+		resetDownloadingAndUrl();
 		incrementDownloads();
 	}
 
@@ -54,9 +54,7 @@
 			audioChunks.push(value);
 		}
 
-		const audioBlob = new Blob(audioChunks, {
-			type: 'audio/mpeg'
-		});
+		const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
 		return URL.createObjectURL(audioBlob);
 	}
 
@@ -67,15 +65,16 @@
 		}
 	}
 
-	function resetState() {
+	function resetDownloadingAndUrl() {
 		downloading = false;
 		url = '';
 	}
 
 	async function handleError() {
-		resetState();
 		error = 'Ocurrio un error, valida el link e intenta nuevamente.';
-		setTimeout(() => {
+		resetDownloadingAndUrl();
+		clearTimeout(errorTimeout);
+		errorTimeout = setTimeout(() => {
 			error = '';
 		}, 4000);
 	}
@@ -98,10 +97,10 @@
 	</div>
 {/if}
 
-<div class="flex min-h-dvh flex-col bg-orange-50">
+<div class="flex min-h-dvh flex-col bg-amber-50">
 	<div class="flex grow flex-col items-center justify-center gap-5 px-4">
 		<input
-			class="mt-14 w-full bg-orange-50 text-center text-lg focus:outline-none sm:text-3xl"
+			class="mt-14 w-full bg-amber-50 text-center text-lg focus:outline-none sm:text-3xl"
 			placeholder="link de youtube"
 			bind:value={url}
 		/>
