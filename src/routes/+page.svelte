@@ -98,10 +98,10 @@
 	</div>
 {/if}
 
-<div class="flex min-h-dvh flex-col">
+<div class="flex min-h-dvh flex-col bg-orange-50">
 	<div class="flex grow flex-col items-center justify-center gap-5 px-4">
 		<input
-			class="mt-14 w-full text-center text-lg focus:outline-none sm:text-3xl"
+			class="mt-14 w-full bg-orange-50 text-center text-lg focus:outline-none sm:text-3xl"
 			placeholder="link de youtube"
 			bind:value={url}
 		/>
@@ -114,8 +114,8 @@
 		</button>
 	</div>
 	<footer class="mt-auto flex w-full justify-between p-4">
-		<a class="text-sm text-gray-400" href="https://www.puntogris.com/" target="_blank">Puntogris</a>
-		<div class="text-sm text-gray-400">
+		<a class="text-sm text-gray-500" href="https://www.puntogris.com/" target="_blank">Puntogris</a>
+		<div class="text-sm text-gray-500">
 			Descargas totales {$downloads}
 		</div>
 	</footer>
