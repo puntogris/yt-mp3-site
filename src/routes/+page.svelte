@@ -36,7 +36,6 @@
 			handleError();
 			return;
 		}
-
 		const mp3Data = await convertToMP3Format(await getBloblUrlFromBody(audioResponse.body));
 		downloadToBrowser(mp3Data);
 
@@ -44,7 +43,7 @@
 		incrementDownloads();
 	}
 
-	async function getBloblUrlFromBody(body: ReadableStream<Uint8Array>): Promise<Uint8Array[]> {
+	async function getBloblUrlFromBody(body: ReadableStream<Uint8Array>): Promise<string> {
 		const reader = body.getReader();
 		const audioChunks: Uint8Array[] = [];
 
@@ -56,7 +55,8 @@
 			audioChunks.push(value);
 		}
 
-		return audioChunks;
+		const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+		return URL.createObjectURL(audioBlob);
 	}
 
 	async function convertToMP3Format(audioStream) {
@@ -65,7 +65,7 @@
 
 		console.log(await fetchFile(audioStream));
 		const inputFileName = 'input.mp4'; // Assuming the audio is in MP4 format
-		ffmpeg.FS('writeFile', inputFileName, audioStream);
+		ffmpeg.FS('writeFile', inputFileName, await fetchFile(audioStream));
 
 		await ffmpeg.run('-i', inputFileName, '-c:a', 'libmp3lame', 'output.mp3');
 		console.log(ffmpeg.FS('readdir', '.'));
