@@ -1,6 +1,5 @@
 import { error } from '@sveltejs/kit';
 import ytdl from 'ytdl-core';
-import ffmpeg from '../../lib/server/ffmpeg.js';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request }) {
@@ -10,20 +9,17 @@ export async function POST({ request }) {
 		if (!url) {
 			error(500, 'Error leyendo la url');
 		}
-
 		const audioStream = ytdl(url, { filter: 'audioonly' });
-
-		const mp3Stream = ffmpeg(audioStream).audioCodec('libmp3lame').format('mp3').pipe();
 
 		const readableStream = new ReadableStream({
 			start(controller) {
-				mp3Stream.on('data', (chunk) => {
+				audioStream.on('data', (chunk) => {
 					controller.enqueue(chunk);
 				});
-				mp3Stream.on('end', () => {
+				audioStream.on('end', () => {
 					controller.close();
 				});
-				mp3Stream.on('error', (err) => {
+				audioStream.on('error', (err) => {
 					console.error(err);
 					controller.error(err);
 				});

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
+	import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
 	export let data;
 
@@ -35,9 +36,9 @@
 			handleError();
 			return;
 		}
-		const blobUrl = await getBloblUrlFromBody(audioResponse.body);
+		const mp3Data = await convertToMP3Format(audioResponse.body);
+		downloadToBrowser(mp3Data);
 
-		downloadToBrowser(blobUrl, title);
 		resetDownloadingAndUrl();
 		incrementDownloads();
 	}
@@ -56,6 +57,19 @@
 
 		const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
 		return URL.createObjectURL(audioBlob);
+	}
+
+	async function convertToMP3Format(audioStream) {
+		const ffmpeg = createFFmpeg({ log: true });
+		await ffmpeg.load();
+
+		const inputFileName = 'input.mp4'; // Assuming the audio is in MP4 format
+		ffmpeg.FS('writeFile', inputFileName, await fetchFile(audioStream));
+
+		await ffmpeg.run('-i', inputFileName, '-c:a', 'libmp3lame', 'output.mp3');
+		const mp3Data = ffmpeg.FS('readFile', 'output.mp3');
+
+		return mp3Data;
 	}
 
 	async function incrementDownloads() {
@@ -79,10 +93,12 @@
 		}, 4000);
 	}
 
-	function downloadToBrowser(url: string, title: string) {
+	function downloadToBrowser(mp3Data) {
+		const blob = new Blob([mp3Data.buffer], { type: 'audio/mp3' });
+		const url = URL.createObjectURL(blob);
 		const link = document.createElement('a');
 		link.href = url;
-		link.download = title + '.mp3';
+		link.download = 'audio.mp3';
 		link.click();
 	}
 </script>
