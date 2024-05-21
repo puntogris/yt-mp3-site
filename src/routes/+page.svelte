@@ -37,7 +37,7 @@
 			return;
 		}
 		const mp3Data = await convertToMP3Format(await getBloblUrlFromBody(audioResponse.body));
-		downloadToBrowser(mp3Data);
+		downloadToBrowser(mp3Data, title);
 
 		resetDownloadingAndUrl();
 		incrementDownloads();
@@ -98,12 +98,12 @@
 		}, 4000);
 	}
 
-	function downloadToBrowser(mp3Data) {
+	function downloadToBrowser(mp3Data, title) {
 		const blob = new Blob([mp3Data.buffer], { type: 'audio/mp3' });
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement('a');
 		link.href = url;
-		link.download = 'audio.mp3';
+		link.download = title + '.mp3';
 		link.click();
 	}
 </script>
