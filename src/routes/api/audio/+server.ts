@@ -28,7 +28,9 @@ export async function POST({ request }) {
 
 		return new Response(readableStream, {
 			headers: {
-				'Content-Type': 'audio/mpeg'
+				'Content-Type': 'audio/mpeg',
+				'Cross-Origin-Opener-Policy': 'same-origin',
+				'Cross-Origin-Embedder-Policy': 'require-corp'
 			}
 		});
 	} catch (err) {
