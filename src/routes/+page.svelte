@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
-	import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+	import { getFFmpegInstance } from './lib/ffmpeg';
 
 	export let data;
 
@@ -10,6 +10,7 @@
 	let url = '';
 	let error = '';
 	let downloading = false;
+	let progress = 0;
 	let errorTimeout: NodeJS.Timeout;
 
 	async function startDownload() {
@@ -36,45 +37,55 @@
 			handleError();
 			return;
 		}
-		const mp3Data = await convertToMP3Format(await getBloblUrlFromBody(audioResponse.body));
+		const audioData = await getUint8ArrayFromBody(audioResponse.body);
+		const mp3Data = await convertToMP3Format(audioData, title);
 		downloadToBrowser(mp3Data, title);
 
 		resetDownloadingAndUrl();
 		incrementDownloads();
 	}
 
-	async function getBloblUrlFromBody(body: ReadableStream<Uint8Array>): Promise<string> {
+	async function getUint8ArrayFromBody(body: ReadableStream<Uint8Array>): Promise<Uint8Array> {
 		const reader = body.getReader();
-		const audioChunks: Uint8Array[] = [];
+		const buffers = [];
+		let totalLength = 0;
 
 		while (true) {
 			const { value, done } = await reader.read();
 			if (done) {
 				break;
 			}
-			audioChunks.push(value);
+
+			buffers.push(value);
+			totalLength += value.length;
 		}
 
-		const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
-		return URL.createObjectURL(audioBlob);
+		const result = new Uint8Array(totalLength);
+		let offset = 0;
+
+		for (const buffer of buffers) {
+			result.set(buffer, offset);
+			offset += buffer.length;
+		}
+
+		return result;
 	}
 
-	async function convertToMP3Format(audioStream) {
-		const ffmpeg = createFFmpeg({
-			log: true,
-			corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
-		});
-		await ffmpeg.load();
+	async function convertToMP3Format(audioData: Uint8Array, title: string) {
+		const ffmpeg = await getFFmpegInstance();
 
-		console.log(await fetchFile(audioStream));
-		const inputFileName = 'input.mp4'; // Assuming the audio is in MP4 format
-		ffmpeg.FS('writeFile', inputFileName, await fetchFile(audioStream));
+		ffmpeg.setProgress(({ ratio }) => {
+			progress = Math.floor(ratio * 100);
+		});
+
+		const inputFileName = 'input.mp4';
+		const outputFileName = title + '.mp3';
+
+		ffmpeg.FS('writeFile', inputFileName, audioData);
 
 		await ffmpeg.run('-i', inputFileName, '-c:a', 'libmp3lame', 'output.mp3');
-		console.log(ffmpeg.FS('readdir', '.'));
-		const mp3Data = ffmpeg.FS('readFile', 'output.mp3');
 
-		return mp3Data;
+		return ffmpeg.FS('readFile', outputFileName);
 	}
 
 	async function incrementDownloads() {
@@ -98,13 +109,21 @@
 		}, 4000);
 	}
 
-	function downloadToBrowser(mp3Data, title) {
+	function downloadToBrowser(mp3Data: Uint8Array, title: string) {
 		const blob = new Blob([mp3Data.buffer], { type: 'audio/mp3' });
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement('a');
 		link.href = url;
 		link.download = title + '.mp3';
 		link.click();
+	}
+
+	let bg = '';
+
+	function getBg(downloading: boolean) {
+		if (downloading) {
+			('absolute left-0 top-0 h-full rounded-lg bg-green-700');
+		}
 	}
 </script>
 
@@ -126,11 +145,18 @@
 			bind:value={url}
 		/>
 		<button
-			class="w-full max-w-2xl rounded-lg bg-green-600 p-3 font-medium text-white hover:bg-green-700 disabled:bg-green-700"
+			class="relative w-full max-w-2xl overflow-hidden rounded-lg bg-green-600 p-3 font-medium text-white hover:bg-green-700 disabled:bg-green-700"
 			disabled={downloading || !url}
 			on:click={startDownload}
 		>
-			{downloading ? 'Descargando mp3' : 'Descargar mp3'}
+			<div
+				class="absolute left-0 top-0 h-full bg-green-600"
+				style="width: {downloading ? `${progress}%` : '0%'}"
+				hidden={!downloading}
+			/>
+			<span class="relative z-10"
+				>{downloading ? `Descargando mp3 - ${progress}%` : 'Descargar mp3'}</span
+			>
 		</button>
 	</div>
 	<footer class="mt-auto flex w-full justify-between p-4">
