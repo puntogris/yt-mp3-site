@@ -60,7 +60,10 @@
 	}
 
 	async function convertToMP3Format(audioStream) {
-		const ffmpeg = createFFmpeg({ log: true });
+		const ffmpeg = createFFmpeg({
+			log: true,
+			corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+		});
 		await ffmpeg.load();
 
 		console.log(await fetchFile(audioStream));
