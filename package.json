@@ -29,7 +29,7 @@
   "type": "module",
   "dependencies": {
     "@ffmpeg/core": "^0.12.6",
-    "@ffmpeg/ffmpeg": "^0.12.10",
+    "@ffmpeg/ffmpeg": "0.11.6",
     "@vercel/kv": "^1.0.1",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "ytdl-core": "^4.11.5"
