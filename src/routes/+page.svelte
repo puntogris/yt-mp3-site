@@ -83,7 +83,7 @@
 
 		ffmpeg.FS('writeFile', inputFileName, audioData);
 
-		await ffmpeg.run('-i', inputFileName, '-c:a', 'libmp3lame', 'output.mp3');
+		await ffmpeg.run('-i', inputFileName, '-c:a', 'libmp3lame', outputFileName);
 
 		return ffmpeg.FS('readFile', outputFileName);
 	}
@@ -116,14 +116,6 @@
 		link.href = url;
 		link.download = title + '.mp3';
 		link.click();
-	}
-
-	let bg = '';
-
-	function getBg(downloading: boolean) {
-		if (downloading) {
-			('absolute left-0 top-0 h-full rounded-lg bg-green-700');
-		}
 	}
 </script>
 
