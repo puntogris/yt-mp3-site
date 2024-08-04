@@ -11,7 +11,7 @@
 	let error = '';
 	let downloading = false;
 	let progress = 0;
-	let errorTimeout: NodeJS.Timeout;
+	let errorTimeoutId: number;
 
 	async function startDownload() {
 		if (!url) return;
@@ -103,8 +103,8 @@
 	async function handleError() {
 		error = 'Ocurrio un error, valida el link e intenta nuevamente.';
 		resetDownloadingAndUrl();
-		clearTimeout(errorTimeout);
-		errorTimeout = setTimeout(() => {
+		clearTimeout(errorTimeoutId);
+		errorTimeoutId = setTimeout(() => {
 			error = '';
 		}, 4000);
 	}
